@@ -1,0 +1,47 @@
+{
+  "name": "@gn5r/backlog-cli",
+  "version": "0.1.0",
+  "description": "Command Line Interface for Backlog",
+  "author": "shangyuan.tuolang",
+  "main": "dist/index.js",
+  "bin": {
+    "backlog": "dist/index.js"
+  },
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "backlog",
+    "cli"
+  ],
+  "scripts": {
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "format": "prettier -w .",
+    "build": "node esbuild.mjs",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@eslint/js": "^9.33.0",
+    "@tsconfig/node22": "^22.0.2",
+    "@types/node": "^24.2.1",
+    "@types/yargs": "^17.0.33",
+    "@vitest/coverage-v8": "^3.2.4",
+    "esbuild": "^0.25.8",
+    "eslint": "^9.33.0",
+    "globals": "^16.3.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.39.0",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "backlog-js": "^0.13.6",
+    "yargs": "^18.0.0"
+  }
+}

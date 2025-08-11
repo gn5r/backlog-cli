@@ -1,2 +1,2 @@
 # backlog-cli
-Command Line Interface for Backlo
+Command Line Interface for Backlog
