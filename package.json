@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "description": "Command Line Interface for Backlog",
   "author": "shangyuan.tuolang",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
   "bin": {
-    "backlog": "dist/index.js"
+    "backlog": "dist/index.cjs"
   },
-  "type": "module",
+  "type": "commonjs",
   "license": "MIT",
   "keywords": [
     "backlog",
@@ -35,7 +35,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.1.5",
     "prettier": "^3.6.2",
-    "tsx": "^4.20.3",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.39.0",
     "vitest": "^3.2.4"
