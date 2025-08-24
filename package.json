@@ -46,7 +46,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "backlog-js": "^0.13.6",
+    "backlog-js": "^0.13.7",
     "yargs": "^18.0.0"
   }
 }
