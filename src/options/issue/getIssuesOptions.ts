@@ -1,74 +1,73 @@
 import { Option } from "backlog-js";
 import { Options } from "yargs";
 
-type GetIssuesParamsKeys = keyof Option.Issue.GetIssuesParams;
+type GetIssuesOptions = {
+  [key in keyof Option.Issue.GetIssuesParams]: Options;
+};
 
-export const getIssuesOptions: Record<GetIssuesParamsKeys, Options> = {
+export const getIssuesOptions: GetIssuesOptions = {
   projectId: {
-    description: "",
     type: "array",
-    coerce: (v: any[]) => v.map(Number),
+    description:
+      "プロジェクトのID。プロジェクトのIDはプロジェクトの状態一覧の取得から取得できます。",
   },
   issueTypeId: {
-    description: "",
     type: "array",
-    coerce: (v: any[]) => v.map(Number),
+    description: "課題の種別のID。種別のIDは種別一覧の取得から取得できます。",
   },
   categoryId: {
-    description: "",
     type: "array",
-    coerce: (v: any[]) => v.map(Number),
+    description: "課題のカテゴリーのID。カテゴリーのIDはカテゴリー一覧の取得から取得できます。",
   },
   versionId: {
-    description: "",
     type: "array",
-    coerce: (v: any[]) => v.map(Number),
+    description:
+      "課題のバージョンのID。バージョンのIDはバージョン(マイルストーン)一覧の取得から取得できます。",
   },
   milestoneId: {
-    description: "",
     type: "array",
-    coerce: (v: any[]) => v.map(Number),
+    description:
+      "課題のマイルストーンのID。マイルストーンのIDはバージョン(マイルストーン)一覧の取得から取得できます。",
   },
   statusId: {
-    description: "",
     type: "array",
-    coerce: (v: any[]) => v.map(Number),
+    description: "課題の状態のID。状態のIDはプロジェクトの状態一覧の取得から取得できます。",
   },
   priorityId: {
-    description: "",
     type: "array",
-    coerce: (v: any[]) => v.map(Number),
+    description: "課題の優先度のID。優先度のIDは優先度一覧の取得から取得できます。",
   },
   assigneeId: {
-    description: "",
     type: "array",
-    coerce: (v: any[]) => v.map(Number),
+    description:
+      "課題の担当者のユーザーのID。ユーザーのIDはプロジェクトユーザー一覧の取得から取得できます。",
   },
   createdUserId: {
-    description: "",
     type: "array",
-    coerce: (v: any[]) => v.map(Number),
+    description:
+      "課題の登録者のユーザーのID。ユーザーのIDはプロジェクトユーザー一覧の取得から取得できます。",
   },
   resolutionId: {
-    description: "",
     type: "array",
-    coerce: (v: any[]) => v.map(Number),
+    description: "課題の完了理由のID。完了理由のIDは完了理由一覧の取得から取得できます。",
   },
   parentChild: {
-    description: "",
+    type: "string",
+    description: "親子課題の条件。指定が無い場合は0が使われます。",
     choices: [0, 1, 2, 3, 4],
-    type: "number",
   },
   attachment: {
-    type: "string",
-    description: "",
+    type: "boolean",
+    description: "課題が添付ファイルを含むかどうか。",
   },
   sharedFile: {
-    type: "string",
-    description: "",
+    type: "boolean",
+    description: "課題が共有ファイルを含むかどうか。",
   },
   sort: {
-    description: "",
+    type: "string",
+    description:
+      "課題一覧の並び順に使用する属性。カスタム属性のIDはカスタム属性一覧の取得から取得できます。",
     choices: [
       "issueType",
       "category",
@@ -90,65 +89,68 @@ export const getIssuesOptions: Record<GetIssuesParamsKeys, Options> = {
       "actualHours",
       "childIssue",
     ],
-    type: "string",
   },
   order: {
-    description: "",
-    choices: ["asc", "desc"],
     type: "string",
+    description: "課題一覧の並び順。指定が無い場合はdescが使われます。",
+    choices: ["asc", "desc"],
   },
   offset: {
     type: "number",
-    description: "",
+    description: "課題の取得開始位置。0以上の整数を指定してください。",
   },
   count: {
     type: "number",
-    description: "",
+    description:
+      "課題の件数の上限。1〜100の範囲で指定してください。指定が無い場合は20が使われます。",
   },
   createdSince: {
     type: "string",
-    description: "",
+    description: "課題の登録日の期間の開始（yyyy-MM-dd）",
   },
   createdUntil: {
     type: "string",
-    description: "",
+    description: "課題の登録日の期間の終了（yyyy-MM-dd）",
   },
   updatedSince: {
     type: "string",
-    description: "",
+    description: "課題の更新日の期間の開始（yyyy-MM-dd）",
   },
   updatedUntil: {
     type: "string",
-    description: "",
+    description: "課題の更新日の期間の終了（yyyy-MM-dd）",
   },
   startDateSince: {
     type: "string",
-    description: "",
+    description: "課題の開始日の期間の開始（yyyy-MM-dd）",
   },
   startDateUntil: {
     type: "string",
-    description: "",
+    description: "課題の開始日の期間の終了（yyyy-MM-dd）",
   },
   dueDateSince: {
     type: "string",
-    description: "",
+    description: "課題の期限日の期間の開始（yyyy-MM-dd）",
   },
   dueDateUntil: {
     type: "string",
-    description: "",
+    description: "課題の期限日の期間の終了（yyyy-MM-dd）",
+  },
+  hasDueDate: {
+    type: "boolean",
+    description:
+      "falseを指定すると、期限日が設定されていない課題を返します。trueの指定はサポートされておらず、エラーが返されます。",
   },
   id: {
-    description: "",
     type: "array",
-    coerce: (v: any[]) => v.map(Number),
+    description: "課題のID。課題のIDは課題情報の取得から取得できます。",
   },
   parentIssueId: {
-    description: "",
     type: "array",
-    coerce: (v: any[]) => v.map(Number),
+    description: "課題の親課題のID。課題のIDは課題情報の取得から取得できます。",
   },
   keyword: {
     type: "string",
-    description: "",
+    description: "検索キーワード",
   },
 };
