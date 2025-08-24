@@ -1,163 +1,124 @@
-import { Project, Type, SyntaxKind, VariableDeclarationKind } from "ts-morph";
-import { Options } from "yargs";
+import { Project, Type, PropertySignature, InterfaceDeclaration } from "ts-morph";
+import yargs, { Options } from "yargs";
+import { hideBin } from "yargs/helpers";
 import serialize from "serialize-javascript";
+import * as path from "path";
 
-function mapTypeToYargsOption(type: Type): Options {
-  const option: Options = { description: "" };
-
-  if (type.isArray()) {
-    option.type = "array";
-    const elementType = type.getArrayElementType();
-    if (elementType) {
-      const elementOption = mapTypeToYargsOption(elementType);
-
-      if (elementOption.choices) {
-        option.choices = elementOption.choices;
-        if (elementOption.type === "number") {
-          option.coerce = (v: any[]) => v.map(Number);
-        } else if (elementOption.type === "string") {
-          option.coerce = (v: any[]) => v.map(String);
-        }
-      } else {
-        if (elementType.isNumber()) {
-          option.coerce = (v: any[]) => v.map(Number);
-        } else if (elementType.isString()) {
-          option.coerce = (v: any[]) => v.map(String);
-        }
-      }
-    }
-    return option;
-  }
-
-  if (type.isUnion()) {
-    const unionTypes = type.getUnionTypes();
-    const nonUndefinedNullTypes = unionTypes.filter((t) => !t.isUndefined() && !t.isNull());
-
-    if (nonUndefinedNullTypes.length === 1) {
-      return mapTypeToYargsOption(nonUndefinedNullTypes[0]);
-    }
-
-    const choices: (string | number)[] = [];
-    let allStringLiterals = true;
-    let allNumberLiterals = true;
-
-    for (const unionMemberType of nonUndefinedNullTypes) {
-      if (unionMemberType.isStringLiteral()) {
-        choices.push(unionMemberType.getLiteralValue() as string);
-        allNumberLiterals = false;
-      } else if (unionMemberType.isNumberLiteral()) {
-        choices.push(unionMemberType.getLiteralValue() as number);
-        allStringLiterals = false;
-      } else {
-        return { type: "string", description: "" };
-      }
-    }
-
-    if (choices.length > 0) {
-      option.choices = choices;
-      if (allStringLiterals) {
-        option.type = "string";
-      } else if (allNumberLiterals) {
-        option.type = "number";
-      }
-      return option;
-    }
-  }
-
-  const symbol = type.getSymbol();
-  if (symbol && symbol.getDeclarations().length > 0) {
-    const declaration = symbol.getDeclarations()[0];
-    if (declaration.getKind() === SyntaxKind.EnumDeclaration) {
-      const enumDeclaration = declaration.asKindOrThrow(SyntaxKind.EnumDeclaration);
-      const choices: (string | number)[] = [];
-      let hasNumber = false;
-      let hasString = false;
-
-      enumDeclaration.getMembers().forEach((member) => {
-        const value = member.getValue();
-        if (typeof value === "number") {
-          choices.push(value);
-          hasNumber = true;
-        } else if (typeof value === "string") {
-          choices.push(value);
-          hasString = true;
-        }
-      });
-
-      if (choices.length > 0) {
-        option.choices = choices;
-        if (hasNumber && !hasString) {
-          option.type = "number";
-        } else if (hasString && !hasNumber) {
-          option.type = "string";
-        } else {
-          option.type = "string";
-        }
-        return option;
-      }
-    }
-  }
-
-  if (type.isString()) return { type: "string", description: "" };
-  if (type.isNumber()) return { type: "number", description: "" };
-  if (type.isBoolean()) return { type: "boolean", description: "" };
-
-  return { type: "string", description: "" };
+function parseArguments() {
+  return yargs(hideBin(process.argv))
+    .options({
+      moduleName: {
+        type: "string",
+        requiresArg: true,
+        alias: "m",
+      },
+      interfaceName: {
+        type: "string",
+        requiresArg: true,
+        alias: "i",
+      },
+      typeName: {
+        type: "string",
+        requiresArg: true,
+        alias: "t",
+      },
+      path: {
+        type: "string",
+        requiresArg: true,
+        alias: "p",
+      },
+    })
+    .parseSync();
 }
 
-function generateYargsOption(dtsFileName: string, nameSpace: string, interfaceName: string) {
-  const project = new Project({
-    tsConfigFilePath: "tsconfig.json",
-    skipFileDependencyResolution: true,
-  });
+function getInterface(moduleName: string, interfaceName: string): InterfaceDeclaration {
+  const project = new Project();
+  const sourceFile = project.addSourceFileAtPath("node_modules/backlog-js/dist/types/option.d.ts");
+  return sourceFile.getModuleOrThrow(moduleName).getInterfaceOrThrow(interfaceName);
+}
 
-  const source = project.addSourceFileAtPath(
-    `node_modules/backlog-js/dist/types/${dtsFileName}.d.ts`,
-  );
-  project.addSourceFileAtPath(`node_modules/backlog-js/dist/types/types.d.ts`);
+function createYargsOption(type: Type): Options {
+  let yargsType: "string" | "number" | "boolean" | "array" = "string";
+  const option: { [key: string]: any } = {};
 
-  const iface = source.getModule(nameSpace)?.getInterface(interfaceName);
-  if (!iface)
-    throw new Error(`Interface ${interfaceName} not found in ${nameSpace} of ${dtsFileName}.d.ts`);
+  if (type.isString()) {
+    yargsType = "string";
+  } else if (type.isNumber()) {
+    yargsType = "number";
+  } else if (type.isBoolean()) {
+    yargsType = "boolean";
+  } else if (type.isArray()) {
+    yargsType = "array";
+  } else if (type.isUnion()) {
+    yargsType = "string";
+  } else if (type.isEnum()) {
+    yargsType = "string";
+  }
 
-  const options: Record<string, any> = {};
-  iface.getProperties().forEach((prop) => {
+  option.type = yargsType;
+  option.description = "";
+
+  if ((type.isUnion() && !type.isBoolean()) || type.isEnum()) {
+    option.choices = type.getUnionTypes().map((t) => t.getLiteralValue() as string);
+  }
+
+  return option;
+}
+
+function createYargsOptions(targetInterface: InterfaceDeclaration): {
+  [key: string]: any;
+} {
+  const options: { [key: string]: any } = {};
+  targetInterface.getProperties().forEach((prop: PropertySignature) => {
     const name = prop.getName();
-    const option = mapTypeToYargsOption(prop.getType());
-
-    if (!prop.hasQuestionToken()) {
-      (option as any).demandOption = true;
-    }
-
-    options[name] = option;
+    const type = prop.getType();
+    options[name] = createYargsOption(type);
   });
-
   return options;
 }
 
-function generateSourceCode(path: string, filename: string, objectName: string, options: string) {
-  const project = new Project();
-  const source = project.createSourceFile(`src/options/${path}/${filename}.ts`, "", {
-    overwrite: true,
-  });
-  source.addVariableStatement({
-    declarationKind: VariableDeclarationKind.Const,
-    declarations: [
-      {
-        name: objectName,
-        initializer: options,
-      },
-    ],
-  });
-  source.saveSync();
+function generateOptionsFileContent(params: {
+  moduleName: string;
+  interfaceName: string;
+  typeName: string;
+  options: { [key: string]: any };
+}): string {
+  const typeName = `${params.typeName}`;
+  const variableName = typeName.charAt(0).toLowerCase() + typeName.slice(1);
+
+  return `
+import { Option } from "backlog-js";
+import { Options } from "yargs";
+
+type ${typeName} = {
+  [key in keyof Option.${params.moduleName}.${params.interfaceName}]: Options;
 }
 
-(() => {
-  const options = generateYargsOption("option", "Issue", "GetIssuesParams");
-  generateSourceCode(
-    "issue",
-    "getIssuesOptions",
-    "getIssuesOptions",
-    serialize(options, { space: 2 }),
-  );
-})();
+export const ${variableName}: ${typeName} = ${serialize(params.options, {
+    space: 2,
+  })};
+`;
+}
+
+function writeOptionsFile(filePath: string, content: string) {
+  const project = new Project();
+  project.createSourceFile(filePath, content, { overwrite: true });
+  project.saveSync();
+}
+
+function main() {
+  const args = parseArguments();
+  const targetInterface = getInterface(args.moduleName!, args.interfaceName!);
+  const options = createYargsOptions(targetInterface);
+  const content = generateOptionsFileContent({
+    typeName: args.typeName!,
+    moduleName: args.moduleName!,
+    interfaceName: args.interfaceName!,
+    options,
+  });
+  const outputPath = path.join(process.cwd(), "src", `${args.path}.ts`);
+  writeOptionsFile(outputPath, content);
+  console.log(`yargs options generated at: ${outputPath}`);
+}
+
+main();
