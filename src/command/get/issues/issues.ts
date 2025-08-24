@@ -1,15 +1,10 @@
-import { AbstractSubCommand } from "../../abstractSubCommand";
-import { createBacklog } from "../../../client";
+import { AbstractSubCommand } from "@/command/abstractSubCommand";
+import { createBacklog } from "@/client";
+import { getIssuesOptions } from "@/options/issue/getIssuesOptions";
+import { trim } from "@/utils/trim";
+
 import type { ArgumentsCamelCase, CommandBuilder } from "yargs";
-
-import { getIssuesOptions } from "../../../options/issue/getIssuesOptions";
-import { Option } from "backlog-js";
-
-function trim<U = unknown>(argv: ArgumentsCamelCase<U>) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { _, $0, ...args } = argv;
-  return args;
-}
+import type { Option } from "backlog-js";
 
 export class GetIssues extends AbstractSubCommand {
   command = "issues";
