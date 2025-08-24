@@ -1,11 +1,4 @@
-import { Option } from "backlog-js";
-import { Options } from "yargs";
-
-type GetIssuesOptions = {
-  [key in keyof Option.Issue.GetIssuesParams]: Options;
-};
-
-export const getIssuesOptions: GetIssuesOptions = {
+export const getIssuesOptions = {
   projectId: {
     type: "array",
     description:
@@ -153,4 +146,4 @@ export const getIssuesOptions: GetIssuesOptions = {
     type: "string",
     description: "検索キーワード",
   },
-};
+} as const;
