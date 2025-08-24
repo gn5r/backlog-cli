@@ -87,16 +87,9 @@ function generateOptionsFileContent(params: {
   const variableName = typeName.charAt(0).toLowerCase() + typeName.slice(1);
 
   return `
-import { Option } from "backlog-js";
-import { Options } from "yargs";
-
-type ${typeName} = {
-  [key in keyof Option.${params.moduleName}.${params.interfaceName}]: Options;
-}
-
-export const ${variableName}: ${typeName} = ${serialize(params.options, {
+export const ${variableName} = ${serialize(params.options, {
     space: 2,
-  })};
+  })} as const;
 `;
 }
 
