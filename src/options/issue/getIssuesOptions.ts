@@ -1,47 +1,61 @@
+import type { Option } from "backlog-js";
+
+export type GetIssuesOptions = Option.Issue.GetIssuesParams;
+
 export const getIssuesOptions = {
   projectId: {
-    type: "array",
+    array: true,
+    type: "number",
     description:
       "プロジェクトのID。プロジェクトのIDはプロジェクトの状態一覧の取得から取得できます。",
   },
   issueTypeId: {
-    type: "array",
+    array: true,
+    type: "number",
     description: "課題の種別のID。種別のIDは種別一覧の取得から取得できます。",
   },
   categoryId: {
-    type: "array",
+    array: true,
+    type: "number",
     description: "課題のカテゴリーのID。カテゴリーのIDはカテゴリー一覧の取得から取得できます。",
   },
   versionId: {
-    type: "array",
+    array: true,
+    type: "number",
     description:
       "課題のバージョンのID。バージョンのIDはバージョン(マイルストーン)一覧の取得から取得できます。",
   },
   milestoneId: {
-    type: "array",
+    array: true,
+    type: "number",
     description:
       "課題のマイルストーンのID。マイルストーンのIDはバージョン(マイルストーン)一覧の取得から取得できます。",
   },
   statusId: {
-    type: "array",
+    array: true,
+    type: "number",
     description: "課題の状態のID。状態のIDはプロジェクトの状態一覧の取得から取得できます。",
   },
   priorityId: {
-    type: "array",
+    array: true,
+    type: "number",
     description: "課題の優先度のID。優先度のIDは優先度一覧の取得から取得できます。",
   },
   assigneeId: {
-    type: "array",
+    array: true,
+    type: "number",
     description:
       "課題の担当者のユーザーのID。ユーザーのIDはプロジェクトユーザー一覧の取得から取得できます。",
   },
   createdUserId: {
-    type: "array",
+    array: true,
+    type: "number",
     description:
       "課題の登録者のユーザーのID。ユーザーのIDはプロジェクトユーザー一覧の取得から取得できます。",
   },
   resolutionId: {
-    type: "array",
+    array: true,
+    type: "number",
     description: "課題の完了理由のID。完了理由のIDは完了理由一覧の取得から取得できます。",
   },
   parentChild: {
@@ -135,11 +149,13 @@ export const getIssuesOptions = {
       "falseを指定すると、期限日が設定されていない課題を返します。trueの指定はサポートされておらず、エラーが返されます。",
   },
   id: {
-    type: "array",
+    array: true,
+    type: "number",
     description: "課題のID。課題のIDは課題情報の取得から取得できます。",
   },
   parentIssueId: {
-    type: "array",
+    array: true,
+    type: "number",
     description: "課題の親課題のID。課題のIDは課題情報の取得から取得できます。",
   },
   keyword: {
