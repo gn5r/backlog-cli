@@ -41,21 +41,14 @@ function createYargsOption(type: Type): Options {
   let yargsType: "string" | "number" | "boolean" | "array" = "string";
   const option: { [key: string]: any } = {};
 
-  if (type.isString()) {
-    yargsType = "string";
-  } else if (type.isNumber()) {
-    yargsType = "number";
-  } else if (type.isBoolean()) {
-    yargsType = "boolean";
-  } else if (type.isArray()) {
-    yargsType = "array";
-  } else if (type.isUnion()) {
-    yargsType = "string";
-  } else if (type.isEnum()) {
-    yargsType = "string";
+  yargsType = getYargsType(type);
+
+  if (type.isArray()) {
+    yargsType = getYargsType(type.getArrayElementTypeOrThrow());
   }
 
   option.type = yargsType;
+  option.array = true;
   option.description = "";
 
   if ((type.isUnion() && !type.isBoolean()) || type.isEnum()) {
@@ -63,6 +56,23 @@ function createYargsOption(type: Type): Options {
   }
 
   return option;
+}
+
+function getYargsType(type: Type) {
+  if (type.isString()) {
+    return "string";
+  } else if (type.isNumber()) {
+    return "number";
+  } else if (type.isBoolean()) {
+    return "boolean";
+  } else if (type.isArray()) {
+    return "array";
+  } else if (type.isUnion()) {
+    return "string";
+  } else if (type.isEnum()) {
+    return "string";
+  }
+  return "string";
 }
 
 function createYargsOptions(targetInterface: InterfaceDeclaration): {
@@ -86,8 +96,7 @@ function generateOptionsFileContent(params: {
   const typeName = `${params.typeName}`;
   const variableName = typeName.charAt(0).toLowerCase() + typeName.slice(1);
 
-  return `
-export const ${variableName} = ${serialize(params.options, {
+  return `export const ${variableName} = ${serialize(params.options, {
     space: 2,
   })} as const;
 `;
